@@ -6,7 +6,7 @@ from sklearn.ensemble import RandomForestClassifier
 
 # Load the saved model
 try:
-    loaded_model = pickle.load(open('finalized_model.sav', 'rb'))
+    loaded_model = pickle.load(open('/workspaces/Deploy_UAS_DataMining/streamlit/finalized_model.sav', 'rb'))
 except FileNotFoundError:
     st.error("Model file not found. Please make sure the file is in the correct location and try again.")
     st.stop() # Stop execution if model is not found
