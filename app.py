@@ -4,48 +4,59 @@ import numpy as np
 import pickle
 from sklearn.ensemble import RandomForestClassifier
 
-# Load the saved model
+# Memuat model yang telah disimpan
 try:
     loaded_model = pickle.load(open('finalized_model.sav', 'rb'))
 except FileNotFoundError:
-    st.error("Model file not found. Please make sure the file is in the correct location and try again.")
-    st.stop() # Stop execution if model is not found
+    st.error("File model tidak ditemukan. Pastikan file berada di lokasi yang benar dan coba lagi.")
+    st.stop()  # Menghentikan eksekusi jika model tidak ditemukan
 
-# Title of the app
-st.title("Diabetes Classification App")
+# Judul aplikasi
+st.title("Aplikasi Klasifikasi Diabetes")
 
-# Sidebar for input features
-st.sidebar.header("Input Features")
+# Sidebar untuk input fitur
+st.sidebar.header("Masukkan Fitur")
 
-Pregnancies = st.sidebar.number_input("Pregnancies", min_value=0, max_value=20, value=0)
-Glucose = st.sidebar.number_input("Glucose", min_value=0, max_value=200, value=100)
-BloodPressure = st.sidebar.number_input("Blood Pressure", min_value=0, max_value=150, value=70)
-SkinThickness = st.sidebar.number_input("Skin Thickness", min_value=0, max_value=100, value=20)
+Pregnancies = st.sidebar.number_input("Kehamilan", min_value=0, max_value=20, value=0)
+Glucose = st.sidebar.number_input("Glukosa", min_value=0, max_value=200, value=100)
+BloodPressure = st.sidebar.number_input("Tekanan Darah", min_value=0, max_value=150, value=70)
+SkinThickness = st.sidebar.number_input("Ketebalan Kulit", min_value=0, max_value=100, value=20)
 Insulin = st.sidebar.number_input("Insulin", min_value=0, max_value=1000, value=80)
-BMI = st.sidebar.number_input("BMI", min_value=0.0, max_value=60.0, value=25.0)
-DiabetesPedigreeFunction = st.sidebar.number_input("Diabetes Pedigree Function", min_value=0.0, max_value=3.0, value=0.5)
-Age = st.sidebar.number_input("Age", min_value=0, max_value=100, value=30)
+BMI = st.sidebar.number_input("Indeks Massa Tubuh (BMI)", min_value=0.0, max_value=60.0, value=25.0)
+DiabetesPedigreeFunction = st.sidebar.number_input("Fungsi Riwayat Keluarga Diabetes", min_value=0.0, max_value=3.0, value=0.5)
+Age = st.sidebar.number_input("Usia", min_value=0, max_value=100, value=30)
 
-# Prepare input data for the model
+# Menyiapkan data input untuk model
 input_data = np.array([[Pregnancies, Glucose, BloodPressure, SkinThickness, Insulin, BMI, DiabetesPedigreeFunction, Age]])
 
-# Make a prediction using the loaded model
+# Membuat prediksi menggunakan model yang telah dimuat
 prediction = loaded_model.predict(input_data)
 
-# Display the classification result
-st.header("Classification Result:")
+# Menampilkan hasil klasifikasi
+st.header("Hasil Klasifikasi:")
 if prediction[0] == 0:
-    st.write("Not Diabetic")
+    st.write("Tidak Mengidap Diabetes")
 else:
-    st.write("Diabetic")
-
-    # Further classification to determine if diabetes is severe (ganas) or moderate (jinak)
-    glucose_level = input_data[0][1]  # Glucose level from input_data
-    bmi = input_data[0][5]  # BMI from input_data
-
-    # Example of a rule-based check (can be customized as needed)
-    if glucose_level > 200 or bmi > 35:  # Example threshold for severe diabetes
-        st.warning("Warning: Diabetes may be severe (ganas)")
-    else:
-        st.write("Diabetes is controlled or moderate (jinak)")
+    # Klasifikasi menjadi DM1 atau DM2
+    glucose_level = input_data[0][1]  # Tingkat glukosa dari input_data
+    age = input_data[0][7]  # Usia dari input_data
+    
+    if age < 30 and glucose_level > 150:  # Aturan sederhana untuk Diabetes Melitus Tipe 1
+        st.warning("Hasil: Diabetes Melitus Tipe 1 (DM1)")
+        st.info("""
+### Edukasi tentang Diabetes Melitus Tipe 1 (DM1):
+1. Diabetes Melitus Tipe 1 biasanya terjadi pada usia muda, terutama anak-anak dan remaja.
+2. Disebabkan oleh kerusakan pada sel beta pankreas sehingga tubuh tidak dapat memproduksi insulin.
+3. Gejala meliputi sering haus, sering buang air kecil, penurunan berat badan mendadak, dan kelelahan ekstrem.
+4. Penanganan: memerlukan terapi insulin seumur hidup dan pola makan sehat.
+        """)
+    else:  # Asumsikan sisanya sebagai Diabetes Melitus Tipe 2
+        st.warning("Hasil: Diabetes Melitus Tipe 2 (DM2)")
+        st.info("""
+### Edukasi tentang Diabetes Melitus Tipe 2 (DM2):
+1. Diabetes Melitus Tipe 2 lebih sering terjadi pada usia dewasa atau lanjut usia, tetapi kini juga ditemukan pada usia muda.
+2. Disebabkan oleh resistensi insulin (tubuh tidak dapat menggunakan insulin secara efektif) atau produksi insulin yang tidak mencukupi.
+3. Faktor risiko: kelebihan berat badan, kurang aktivitas fisik, dan riwayat keluarga dengan diabetes.
+4. Penanganan: mencakup perubahan gaya hidup, obat-obatan, dan kadang terapi insulin.
+        """)
 
